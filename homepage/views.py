@@ -67,7 +67,7 @@ def explore_place_result(request):
     
     state_id = data.get('stateid')
     image_url = state_images.get(state_id, 'https://media.istockphoto.com/id/502811578/photo/india.jpg?s=1024x1024&w=is&k=20&c=Ls_9K3drasbw5O4MtG40wKjEmK7kE-EnppZBfxz_G2I=')
-    
+    # for specific json data
     context = {
         'state': data.get('state'),
         'place_name': data.get('placename'),
