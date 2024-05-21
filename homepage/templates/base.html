@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    <!-- Add any CSS links here -->
+    <style>
+        /* Add your CSS styles here */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+        }
+
+        nav {
+            background-color: #666;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .content {
+            background-image: url('https://images.unsplash.com/photo-1708591896763-957353af731e?q=80&w=1965&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+            background-size: cover;
+            background-position: center;
+            padding: 20px;
+            text-align: center;
+            height: 100vh;
+            /* Make the content div cover the entire viewport height */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .search-box {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .search-box input[type="text"] {
+            width: 300px;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        .search-box button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .contentResult {
+            background-image: url('https://images.unsplash.com/photo-1516825513084-7a3397fcd108?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+            background-size: cover;
+            background-position: center;
+            padding: 20px;
+            text-align: center;
+            height: 100vh;
+            /* Make the content div cover the entire viewport height */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+
+        .welcome-container {
+            text-align: center;
+            background: #ffffffc9;
+            padding: 20px 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .welcome-container:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+        }
+        .welcome-container h2 {
+            margin-top: 0;
+            font-size: 2em;
+            color: #333;
+        }
+        .explore-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1.2em;
+            color: #fff;
+            background-color: #007bff;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        .explore-link:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+        .result-box {
+            background-color: rgba(110, 251, 253, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            color: rgb(85, 31, 31);
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .details-wrapper {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+        }
+
+        .place-image {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 10px;
+        }
+
+        .text-details {
+            flex-grow: 1;
+            text-align: left;
+
+        }
+    </style>
+</head>
+
+<body>
+
+
+    <!-- <a href="{% url 'explore_place' %}">Explore by Place</a>  -->
+
+    <!-- <div class="content"> -->
+        {% block content %}
+        <a href="{% url 'register' %}">Register</a>
+        <a href="{% url 'login' %}">Login</a>
+        {% endblock %}
+    <!-- </div> -->
+
+</body>
+
+</html>

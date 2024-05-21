@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<!-- <div class="content"> -->
+    <header>
+        <h1>Travel Exploration</h1>
+        <p>Welcome to your next adventure!</p>
+    </header>
+<div class="content">
+    <div class="welcome-container">
+        <h2>Welcome to Travel Exploration!</h2>
+        <a href="{% url 'explore_place' %}" class="explore-link">Explore by Place</a>
+    </div>
+</div>
+<!-- </div> -->
+{% endblock %}

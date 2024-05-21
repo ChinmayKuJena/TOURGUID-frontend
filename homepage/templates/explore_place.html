@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}Explore by Place{% endblock %}
+
+{% block content %}
+<header>
+    <h1>Travel Exploration</h1>
+</header>
+<div class="content">
+<div class="content">
+    <div class="search-box">
+        <h2>Search for Places</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form }}
+
+            <button type="submit">Search</button>
+        </form>
+    </div>
+    </div>
+</div>
+{% endblock %}
