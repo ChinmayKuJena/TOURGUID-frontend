@@ -1,0 +1,24 @@
+<!-- templates/login_success.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Successful</title>
+</head>
+<body>
+    <h2>Login Successful!</h2>
+    {% if token %}
+        <p>Your token: {{ token }}</p>
+        
+    {% endif %}
+    
+    <a href="{% url 'login' %}">Login</a>
+    <a href="{% url 'logout' %}">Logout</a>  <!-- Add a logout link -->
+    
+    <a href="{% url 'explore_place' %}">Explore a Place</a> <!-- Add a link to explore a place -->
+    <a href="{% url 'home' %}">Home</a> <!-- Add a link to explore a place -->
+
+
+</body>
+</html>

@@ -2,6 +2,11 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .forms import SearchForm
 import requests
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from .permissions import IsAuthenticatedOrTokenHasPermission
+
 
 def home(request):
     return render(request, 'home.html')
@@ -14,6 +19,8 @@ def explore_place(request):
             print(f"User searched for: {place_name}")
             # Make a request to your backend API
             # api_url = f"http://localhost:8080/api/GetPlaceDetails/{place_name}"
+            token=request.COOKIES.get('jwt_token')
+            print(token)
             api_url = f"http://localhost:3030/api/GetPlaceDetails/{place_name}"
             response = requests.get(api_url)
             if response.status_code == 200:
