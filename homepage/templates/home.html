@@ -1,23 +1,23 @@
-{% extends 'base.html' %}
+{% extends 'base2.html' %}
 
 {% block title %}Home{% endblock %}
 
 {% block content %}
 <!-- <div class="content"> -->
-    <header>
+    <!-- <header>
         <h1>Travel Exploration</h1>
         <p>Welcome to your next adventure!</p>
-    </header>
+        <a href="{% url 'login' %}">Login</a>|--|
+        <a href="{% url 'register' %}">Register</a>|--|
+    
+        <a href="{% url 'logout' %}">Logout</a> 
+    </header> -->
+
 <div class="content">
     <div class="welcome-container">
         <h2>Welcome to Travel Exploration!</h2>
         <a href="{% url 'explore_place' %}" class="explore-link">Explore by Place</a>
     </div>
-    <a href="{% url 'login' %}">Login</a>
-    <a href="{% url 'register' %}">Register</a>
-
-    <a href="{% url 'logout' %}">Logout</a>  <!-- Add a logout link -->
-
 </div>
-<!-- </div> -->
+
 {% endblock %}

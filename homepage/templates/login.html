@@ -1,0 +1,20 @@
+<!-- login.html -->
+{% extends 'base2.html' %}
+{% block title %}User Login{% endblock %}
+
+{% block content %}
+<div class="box">
+        {% if message %}
+        <div class="alert alert-info">{{ message }}</div>
+        {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Login</button>
+    </form>
+    </div>
+    <!-- <a href="{% url 'register' %}">Register (Create New Account)</a> -->
+
+    {% endblock %}
+

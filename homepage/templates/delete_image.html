@@ -1,0 +1,17 @@
+<!-- templates/delete_image.html -->
+{% extends 'base2.html' %}
+
+{% block title %}Delete Blog{% endblock %}
+
+{% block content %}
+    <h1>Are you sure you want to delete this blog?</h1>
+    <!-- <p><strong>Blog by: {{ image.username }}</strong></p> -->
+    <!-- <p>{{ image.blog }}</p> -->
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Confirm Delete</button>
+        <!-- <input type="hidden" name="next" value="{{ next }}"> -->
+    </form>
+    <!-- <a href="{{ next }}">Back </a> -->
+    <a href="{% url 'user_profile' %}">Cancel</a>
+{% endblock %}

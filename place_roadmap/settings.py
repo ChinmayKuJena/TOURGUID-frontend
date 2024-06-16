@@ -25,10 +25,20 @@ SECRET_KEY = 'django-insecure-1%jl8e5ov#)4h=jc=4hy3ei&u=%0@5727b+q$qsm*9@xugwx&v
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['6e10-157-41-255-70.ngrok-free.app','127.0.0.1']
+
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://6e10-157-41-255-70.ngrok-free.app'
+]
+
+# Optional: Allow Ngrok with both HTTP and HTTPS in general
+CSRF_TRUSTED_ORIGINS += ['http://*.ngrok.io', 'https://*.ngrok.io']
+
 
 
 # Application definition
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -41,10 +51,8 @@ INSTALLED_APPS = [
     # 'user_info',
     'rest_framework',
     'rest_framework_simplejwt',
-    'registration',    
-
 ]
-AUTH_USER_MODEL = 'registration.UserRegistration'
+AUTH_USER_MODEL = 'homepage.UserRegistration'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -56,7 +64,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'place_roadmap.middlewares.JWTAuthenticationMiddleware',  # Add this line
-
+    'homepage.middleware.FetchUserDetailsMiddleware',
 
 ]
 
@@ -120,7 +128,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+# TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'
 
 USE_I18N = True
 
@@ -166,3 +175,5 @@ SIMPLE_JWT = {
 }
 
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'

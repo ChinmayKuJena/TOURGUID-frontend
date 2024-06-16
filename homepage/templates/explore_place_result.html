@@ -1,22 +1,63 @@
-{% extends 'base.html' %}
+{% extends 'base2.html' %}
 
 {% block title %}Explore by Place{% endblock %}
 
 {% block content %}
-    <div class="contentResult">
-        <div class="result-box">
-             <h1>Place Details</h1>
-            <div class="details-wrapper">
-                <!-- Display the image -->
-                <img src="{{ image_url }}" alt="Place Image" class="place-image">
-                <div class="text-details">
-                    <p><strong>Place Name:</strong> {{ place_name }}</p>
-                    <p><strong>State:</strong> {{ state }}</p>
-                    <p><strong>Place Details:</strong> {{ place_details }}</p>
-                </div>
+<div class="contentResult">
+    <div class="result-box">
+        <h1>Place Details</h1>
+        <div class="details-wrapper">
+            <!-- Display the image -->
+            <img src="{{ image_url }}" alt="Place Image" class="place-image">
+            <div class="text-details">
+                <p><strong>Place Name:</strong> {{ place_name }}</p>
+                <p><strong>State:</strong> {{ state }}</p>
+                <p><strong>Place Details:</strong> {{ place_details }}</p>
+
             </div>
         </div>
-        <a href="{% url 'logout' %}">Logout</a>  <!-- Add a logout link -->
-
     </div>
+
+    <div class="blogs">
+        <h2>Blogs for {{ place_name }}</h2>
+
+        {% if blogs %}
+        <ul>
+            {% for blog in blogs %}
+            <li class="id-card">
+                <!-- display the blog image -->
+                {% if blog.image %}
+                <img src="{{ blog.image.url }}" alt="{{ blog.place_name }}" class="blog-image">
+                {% endif %}
+                <p><strong>Blog by: {{ blog.username }}</strong> </p>
+                <p><strong>Place Name: {{ blog.place_name }}</strong> </p>
+                <p>
+
+                    Blog: {{ blog.blog|truncatechars:10 }}
+                <p>
+                    <a href="{% url 'blog_view' blog.id %}?next={% url 'explore_place_result' %}">View Blog</a>
+
+                </p>
+                </p>
+
+                </p>
+
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p>No blogs available for this place.</p>
+        {% endif %}
+    </div>
+    <!-- <a href="{% url 'logout' %}">Logout</a>  Add a logout link -->
+     <div>
+
+         <a href="{% url 'upload_image' %}">upload</a>
+    </div>
+    <div>
+        <a href="{% url 'image_list' %}">View Blogs</a>
+    </div>
+
+
+</div>
 {% endblock %}

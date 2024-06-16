@@ -1,0 +1,13 @@
+<!-- templates/upload_image.html -->
+{% extends 'base2.html' %}
+
+{% block title %}Upload Image{% endblock %}
+
+{% block content %}
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Upload</button>
+    </form>
+    <a href="{% url 'image_list' %}">Blog List</a>
+{% endblock %}

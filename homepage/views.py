@@ -1,15 +1,378 @@
-from django.shortcuts import render, redirect
+import json
+from django.db import connection
+from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponse
+
+# from .utils import COMMON_KEYS
 from .forms import SearchForm
 import requests
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from .permissions import IsAuthenticatedOrTokenHasPermission
+from django.utils import timezone
+import jwt
+from django.conf import settings
+from .models import Place2, UserRegistration,ImageBlogModel,Place1,States
+from .forms import UserRegistrationForm, UserLoginForm,ImageBlogForm
+from django.contrib.auth.hashers import check_password
+from datetime import  timedelta
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from django.shortcuts import render
+# from .models import Place
 
+
+
+
+def image_list(request):
+    blogs = ImageBlogModel.objects.all()
+    return render(request, 'image_list.html', {'blogs': blogs, 'authenticated': True,'user': request.user,'user_details': request.user_details,})
+
+def view_blog(request, blog_id):
+    blog = get_object_or_404(ImageBlogModel, id=blog_id)
+
+    context = {
+        'blog': blog,
+        'authenticated': True,
+        'user_details': request.user_details,
+        # 'image': image,
+    }
+    return render(request, 'view_blog.html', context)
+
+def blog_detail(request, blog_id):
+    
+    # blog = get_object_or_404(ImageBlogModel, id=blog_id)
+    
+    blog = get_object_or_404(ImageBlogModel, id=blog_id)
+    return render(request, 'blog_detail.html', {'blog': blog, 'user_details': request.user_details,'authenticated': True})
+
+# using this 
+def blog_view(request, blog_id):
+    blog = get_object_or_404(ImageBlogModel, id=blog_id)
+    
+    # Determine where to redirect based on a query parameter or POST data
+    redirect_to = request.GET.get('next') or request.POST.get('next') 
+    context = {
+        'blog': blog,
+        'authenticated': True,
+        'user_details': request.user_details,
+        'next': redirect_to,
+    }
+
+    return render(request, 'blog_detail.html', context)
+
+
+@csrf_exempt
+def delete_image(request, image_id):
+    # Get the JWT token from cookies
+    token = request.COOKIES.get('jwt_token')
+    if not token:
+        return HttpResponse("Unauthorized", status=401)
+    
+    try:
+        # Decode the token to get the username
+        decoded_token = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+        logged_in_username = decoded_token.get('username')
+
+        # Fetch the image to be deleted
+        image = get_object_or_404(ImageBlogModel, id=image_id)
+        # Check if the logged-in user is the one who posted the image
+        if image.username == logged_in_username:
+            if request.method == 'POST':
+                image.delete()
+                return redirect('user_profile')
+            return render(request, 'delete_image.html', {'image': image,'authenticated': True,})
+        else:
+            return HttpResponse("You are not authorized to delete this image.", status=403)
+
+    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
+        return HttpResponse("Invalid or expired token", status=401)
+    
+   
+
+# @login_required
+def edit_blog(request, image_id):
+    image = get_object_or_404(ImageBlogModel, id=image_id)
+    # print(request.user.username)
+    token = request.COOKIES.get('jwt_token')
+
+    decoded_token = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+    logged_in_username = decoded_token.get('username')
+    if request.method == 'POST' and image.username == logged_in_username:
+        image.blog = request.POST.get('blog')
+        image.save()
+        return redirect('image_list')
+    return render(request, 'edit_image.html', {'image': image,'authenticated': True,'user': request.user})    
+
+
+
+def user_profile(request):
+    user_email = None
+    token = request.COOKIES.get('jwt_token')
+    username=None
+    
+    if token:
+        try:
+            decoded_token = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+            user_email = decoded_token.get('email')
+            username = decoded_token.get('username')
+        except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
+            return redirect('login')
+    # print(user_email)
+    if not user_email:
+        return redirect('login')
+    
+    try:
+        userDetails = UserRegistration.objects.get(email=user_email)
+    except UserRegistration.DoesNotExist:
+        userDetails = None
+    
+
+    blogs = ImageBlogModel.objects.filter(username=username) if userDetails else ImageBlogModel.objects.none()
+    # print(COMMON_KEYS['USER_DETAILS_OBJ'])
+    context = {
+        'userDetails': userDetails,
+        'blogs': blogs,
+        'authenticated': True,
+        'user_details': request.user_details
+    }
+    
+    return render(request, 'account.html', context)
+
+
+
+def upload_image(request):
+    # Get place_data from session, initialize as an empty dict if not present
+    place_data = request.session.get('place_data', {})
+
+    # Check if place_data is a list and convert to a dictionary if necessary
+    if isinstance(place_data, list):
+        place_data = place_data[0] if place_data else {}
+        username = 'anonymous'
+
+    # Get the JWT token from cookies
+    token = request.COOKIES.get('jwt_token')
+    if token:
+        try:
+            decoded_token = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+            username = decoded_token.get('username', 'anonymous')
+        except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
+            pass    
+
+    context = {
+        'state': place_data.get('state', ''),
+        'place_name': place_data.get('placename', ''),
+        'place_details': place_data.get('placedetails', ''),
+        'username': username,
+        
+    }
+    # print(context.get('user_details'))
+    if request.method == 'POST':
+        form = ImageBlogForm(request.POST, request.FILES)
+        if form.is_valid():
+            # Create a new instance without saving it to the database yet
+            image_blog = form.save(commit=False)
+            # Set additional fields from session data
+            image_blog.state_name = place_data.get('state', '')
+            image_blog.state_id = place_data.get('stateid', '')
+            image_blog.place_name = place_data.get('placename', '')
+            image_blog.place_id = place_data.get('placeid', '')
+            # Set username from cookies
+            image_blog.username = username
+            
+
+            # Save the instance to the database
+            image_blog.save()
+            
+            return redirect('image_list')
+            # return render(request, 'upload_image.html', {'form': form, 'context': context,'authenticated': True,'user_details': request.user_details})
+    else:
+        form = ImageBlogForm()
+
+    return render(request, 'upload_image.html', {'form': form, 'context': context,'authenticated': True,'user_details': request.user_details})
+
+
+def place_list(request):
+    username = 'anonymous'
+    token = request.COOKIES.get('jwt_token')
+    if token:
+        try:
+            decoded_token = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+            username = decoded_token.get('username', 'anonymous')
+        except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
+            pass
+    
+    states = []
+    places = []
+    selected_state = None
+    selected_place = None
+
+    with connection.cursor() as cursor:
+        # Fetch all states
+        cursor.execute("SELECT id, state FROM india")
+        states = cursor.fetchall()
+        
+        if request.method == "POST":
+            selected_state_id = request.POST.get('state')
+            if selected_state_id:
+                selected_state = selected_state_id
+                # Fetch places for the selected state
+                (cursor.execute("SELECT placeid, placename FROM place WHERE stateid = %s", [selected_state_id]))
+                places = cursor.fetchall()
+                # print(places) 
+                selected_place_id = request.POST.get('placename')
+                if selected_place_id:
+                    cursor.execute("""
+                        SELECT 
+                            p.placeid, 
+                            p.placename, 
+                            p.stateid, 
+                            i.state AS statename
+                        FROM 
+                            place p
+                        JOIN 
+                            india i 
+                        ON 
+                            p.stateid = i.id
+                        WHERE 
+                            p.placeid = %s
+                    """, [selected_place_id])
+
+
+                    selected_place = cursor.fetchone()
+                    request.session['place_data'] = {
+                        'placeid': selected_place[0],
+                        'placename': selected_place[1],
+                        'stateid': selected_place[2],
+                        'state': selected_place[3],
+                        # 'placedetails': selected_place[4],
+                    }
+                    return redirect('upload_image')
+
+    return render(request, 'place_list.html', {
+        'states': states,
+        'places': places,
+        'selected_state': selected_state,
+        'selected_place': selected_place,
+        'username': username,
+        'authenticated': True,
+        'user_details': request.user_details
+    })
+
+@csrf_exempt
+def register(request):
+    if request.method == 'POST':
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('registration_success')
+    else:
+        form = UserRegistrationForm()
+    return render(request, 'register.html', {'form': form})
+
+def registration_success(request):
+    return render(request, 'registration_success.html')
+
+@csrf_exempt
+def login_view(request):
+    message = request.session.pop('login_message', None)
+
+    if request.method == 'POST':
+        form = UserLoginForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            password = form.cleaned_data['password']
+            try:
+                user = UserRegistration.objects.get(email=email)
+                if user and check_password(password, user.password):
+                    # jwt expiry time 
+                    token_expiration = timezone.now() + timedelta(minutes=100000)
+                    # payload with userid user email and username
+                    payload = {
+                        'id': user.id,
+                        'email': user.email,
+                        'exp': token_expiration,
+                        'username': f"{user.first_name} {user.last_name}",                        
+                    }
+
+                    # jwt token 
+                    token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
+                    # save in db
+                    user.token = token
+                    user.token_expiration = token_expiration
+                    user.last_login = timezone.now()
+                    user.save()
+                    # ############# #
+                    response = redirect('login_success')
+                    # jwt set to cookie
+                    response.set_cookie('jwt_token', token, httponly=True, expires=payload['exp'])
+                    return response
+                else:
+                    form.add_error(None, 'Invalid email or password')
+            except UserRegistration.DoesNotExist:
+                form.add_error(None, 'Invalid email or password')
+    else:
+        form = UserLoginForm()
+    
+    return render(request, 'login.html', {'form': form,'message':message})
+
+def login_success(request):
+    token = request.COOKIES.get('jwt_token')
+    return render(request, 'login_success.html', {'token': token,'authenticated': True,'user_details': request.user_details})
+
+@csrf_exempt
+def logout(request):
+    # Clear the user's session or remove authentication tokens from cookies
+    response = redirect('login')  # Redirect to the login page
+    token = request.COOKIES.get('jwt_token')
+    if token:
+        try:
+            #  JWT token and extract user ID and update the expiri time and delete the jwt token from cookie
+            decoded_token = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+            user_id = decoded_token.get('id')
+            user = UserRegistration.objects.get(id=user_id)
+            user.last_logout = timezone.now()
+            user.token_expiration = timezone.now()  # Set token expiration to current time
+            user.save()
+        except (jwt.ExpiredSignatureError, jwt.InvalidTokenError, UserRegistration.DoesNotExist):
+            pass
+    response.delete_cookie('jwt_token')  # Delete the JWT token cookie if it exists
+    return response
+
+def get_user_details(request):
+    token = request.COOKIES.get('jwt_token')
+    if not token:
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+
+    try:
+        decoded_token = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+        user_details = {
+            'username': decoded_token['username'],  # Assuming username is stored in the JWT token
+            'email': decoded_token['email'],        # Assuming email is stored in the JWT token
+            # Add other user details as needed
+        }
+        return JsonResponse(user_details)
+    except jwt.ExpiredSignatureError:
+        return JsonResponse({'error': 'Token has expired'}, status=401)
+    except jwt.InvalidTokenError:
+        return JsonResponse({'error': 'Invalid token'}, status=401)
 
 def home(request):
-    return render(request, 'home.html')
+    return render(request, 'home.html',{'authenticated': True,'user_details': request.user_details})
+
+def base(request):
+    token = request.COOKIES.get('jwt_token')
+
+    if token:
+        try:
+            authenticated = True
+        except jwt.ExpiredSignatureError:
+
+            authenticated = False
+        except jwt.InvalidTokenError:
+
+            authenticated = False
+    else:
+        authenticated = False
+
+    return render(request, 'base2.html', {'authenticated': authenticated, 'user_details': request.user_details})
 
 def explore_place(request):
     if request.method == 'POST':
@@ -19,25 +382,32 @@ def explore_place(request):
             print(f"User searched for: {place_name}")
             # Make a request to your backend API
             # api_url = f"http://localhost:8080/api/GetPlaceDetails/{place_name}"
-            token=request.COOKIES.get('jwt_token')
-            print(token)
+            # token=request.COOKIES.get('jwt_token')
+            # print(token)
             api_url = f"http://localhost:3030/api/GetPlaceDetails/{place_name}"
             response = requests.get(api_url)
             if response.status_code == 200:
+                # place_data = response.json()
+
                 # Store the data in the session
                 request.session['place_data'] = response.json()
-                return redirect('explore_place_result')
+                response=redirect('explore_place_result')
+                return response
+                # return redirect('explore_place_result')
             else:
                 return HttpResponse("Failed to fetch place details.")
     else:
         form = SearchForm()
-    return render(request, 'explore_place.html', {'form': form})
+    return render(request, 'explore_place.html', {'form': form,'authenticated': True,'user_details': request.user_details})
 
 def explore_place_result(request):
     data = request.session.get('place_data')
+
     if not data:
         return HttpResponse("No data found.")
-    
+
+
+
     if isinstance(data, list) and len(data) > 0:
         data = data[0]
     state_images = {
@@ -75,11 +445,25 @@ def explore_place_result(request):
     state_id = data.get('stateid')
     image_url = state_images.get(state_id, 'https://media.istockphoto.com/id/502811578/photo/india.jpg?s=1024x1024&w=is&k=20&c=Ls_9K3drasbw5O4MtG40wKjEmK7kE-EnppZBfxz_G2I=')
     # for specific json data
+    # image = ImageBlogModel.objects.all()
+
+    place_id = data.get('placeid')
+    place_name = data.get('placename')
+    if not place_id==None:
+        blogs = ImageBlogModel.objects.filter(place_id=place_id)
+    elif not place_name==None:
+        blogs = ImageBlogModel.objects.filter(place_name=place_name)
+
+    # print(blogs)
     context = {
         'state': data.get('state'),
         'place_name': data.get('placename'),
         'place_details': data.get('placedetails'),
-        'image_url': image_url
+        'image_url': image_url,
+        'authenticated': True,
+        'user_details': request.user_details,
+        'blogs':blogs,
 
     }
     return render(request, 'explore_place_result.html', context)
+
