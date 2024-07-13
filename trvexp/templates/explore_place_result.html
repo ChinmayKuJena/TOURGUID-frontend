@@ -1,0 +1,24 @@
+{% extends 'base2.html' %}
+
+{% block title %}Explore by Place{% endblock %}
+
+{% block content %}
+<div class="contentResult">
+    <div class="result-box">
+        <h1>Place Details</h1>
+        <div class="details-wrapper">
+            <!-- Display the image -->
+            <img src="{{ image_url }}" alt="Place Image" class="place-image">
+            <div class="text-details capitalize-text">
+                <p><strong>Place Name:</strong> {{ place_name }}</p>
+                <p><strong>State:</strong> {{ state }}</p>
+                <p><strong>Place Details:</strong> {{ place_details }}</p>
+
+            </div>
+        </div>
+    </div>
+
+  
+
+</div>
+{% endblock %}

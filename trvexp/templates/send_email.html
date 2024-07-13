@@ -1,0 +1,21 @@
+<!-- templates/send_email.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Send Email</title>
+</head>
+<body>
+    <h1>Send Email</h1>
+    <form method="POST">
+        {% csrf_token %}
+        <label for="to_email">To:</label>
+        <input type="email" id="to_email" name="to_email" required><br><br>
+        <label for="subject">Subject:</label>
+        <input type="text" id="subject" name="subject" required><br><br>
+        <label for="message">Message:</label><br>
+        <textarea id="message" name="message" rows="5" cols="40" required></textarea><br><br>
+        <button type="submit">Send Email</button>
+    </form>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!-- templates/welcome_email.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Our Platform</title>
+    <style>
+        /* Inline CSS for email */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, p {
+            color: #333333;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: #007bff;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to Travel Exploration!</h1>
+        <p>Dear {{ user.firstName }},</p>
+        <p>Thank you for registering & login with us. We're thrilled to have you on board.</p>
+        <p>Explore our platform and start enjoying our services today!</p>
+        <p><a href="http://127.0.0.1:8000/trv/explore_place/" class="cta-button">Explore Places</a></p>
+        <!-- <p><a href="http://3997-2409-40e2-202f-d44c-4df6-453a-8bc3-c43d.ngrok-free.app/trv/explore_place/" class="cta-button">Explore Places</a></p> -->
+        <!-- <p><a href="{% url 'explore_place' %}" class="cta-button">Explore Places</a></p> -->
+        <p>Best regards,<br>Your Team Name</p>
+    </div>
+</body>
+</html>

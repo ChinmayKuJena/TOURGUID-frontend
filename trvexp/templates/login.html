@@ -1,0 +1,16 @@
+{% extends 'base2.html' %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+    {% if message %}
+        <div class="alert alert-info">{{ message }}</div>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Login</button>
+    </form>
+    <a href="{% url 'register' %}">Register (Create New Account)</a>
+    {% endblock %}

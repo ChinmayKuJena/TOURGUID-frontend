@@ -1,0 +1,33 @@
+{% extends 'base2.html' %}
+{% block title %}Place List{% endblock %}
+
+
+{% block content %}
+    <div>
+
+        <form method="post">
+            {% csrf_token %}
+        <label for="state">Select a state:</label>
+        <select name="state" id="state" onchange="this.form.submit()">
+            <option value="">--Select a state--</option>
+            {% for state in states %}
+                <option value="{{ state.0 }}" {% if selected_state and state.0 == selected_state %} selected {% endif %}>{{ state.1 }}</option>
+                {% endfor %}
+            </select>
+
+        <label for="placename">Select a place:</label>
+        <select name="placename" id="placename">
+            <option value="">--Select a place--</option>
+            
+            {% for place in places %}
+            <div class="capitalize-text">
+                <option value="{{ place.0 }}"class="capitalize-text" {% if selected_place and place.0 == selected_place.0 %} selected {% endif %}>{{ place.1 }}</option>
+                {% endfor %}
+            </div>
+        </select>
+
+        <button type="submit">Submit</button>
+    </form>
+</div>
+
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends 'base2.html' %}
+
+{% block title %}User Profile{% endblock %}
+
+{% block content %}
+<div class="contentResult">
+    <div class="account-box">
+        {% if userDetails %}
+            <p>User Name: {{ userDetails.userName }}</p>
+            <p>User Id: {{ userDetails.userId }}</p>
+            <p>First Name: {{ userDetails.firstName }}</p>
+            <p>Last Name: {{ userDetails.lastName }}</p>
+            <p>Email: {{ userDetails.email }}</p>
+            <p>Joined Date: {{ userDetails.joinDate }}</p>
+            <p>Last Login: {{ userDetails.lastloginDate }}</p>
+
+        {% else %}
+            <p>User details not found.</p>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
