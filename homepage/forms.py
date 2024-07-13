@@ -3,6 +3,11 @@ from django.core.exceptions import ValidationError
 
 from .models import  UserRegistration,ImageBlogModel
 
+class UserEditForm(forms.ModelForm):
+    class Meta:
+        model = UserRegistration
+        fields = ['first_name', 'last_name']
+
 # image and blog form
 class ImageBlogForm(forms.ModelForm):
     class Meta:

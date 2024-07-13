@@ -81,33 +81,6 @@ class ImageBlogModel(models.Model):
 
 
 
-class Place1(models.Model):
-    placeid = models.AutoField(primary_key=True)
-    stateid = models.CharField(max_length=2, blank=True, null=True)
-    placename = models.CharField(max_length=255)
-    placedetails = models.CharField(max_length=255)
-
-    class Meta:
-        db_table = 'place'
-
-
-class States(models.Model):
-    id = models.CharField(primary_key=True, max_length=20)
-    state = models.CharField(max_length=50)
-    famousfor = models.CharField(max_length=100)
-    class Meta:
-        db_table = 'india'
-    # def __str__(self):
-    #     return self.state
-
-class Place2(models.Model):
-    placeid = models.AutoField(primary_key=True)
-    stateid = models.ForeignKey(States, on_delete=models.CASCADE)
-    placename = models.CharField(max_length=255)
-    placedetails = models.CharField(max_length=255)
-
-    def __str__(self):
-        return self.placename
 # class Place1(models.Model):
 #     placeid = models.AutoField(primary_key=True)
 #     stateid = models.CharField(max_length=2, blank=True, null=True)
@@ -116,3 +89,23 @@ class Place2(models.Model):
 
 #     class Meta:
 #         db_table = 'place'
+
+
+# class States(models.Model):
+#     id = models.CharField(primary_key=True, max_length=20)
+#     state = models.CharField(max_length=50)
+#     famousfor = models.CharField(max_length=100)
+#     class Meta:
+#         db_table = 'india'
+#     # def __str__(self):
+#     #     return self.state
+
+# class Place2(models.Model):
+#     placeid = models.AutoField(primary_key=True)
+#     stateid = models.ForeignKey(States, on_delete=models.CASCADE)
+#     placename = models.CharField(max_length=255)
+#     placedetails = models.CharField(max_length=255)
+
+#     def __str__(self):
+#         return self.placename
+

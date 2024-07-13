@@ -4,12 +4,12 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponse
 
 # from .utils import COMMON_KEYS
-from .forms import SearchForm
+from .forms import SearchForm,UserEditForm
 import requests
 from django.utils import timezone
 import jwt
 from django.conf import settings
-from .models import Place2, UserRegistration,ImageBlogModel,Place1,States
+from .models import UserRegistration,ImageBlogModel
 from .forms import UserRegistrationForm, UserLoginForm,ImageBlogForm
 from django.contrib.auth.hashers import check_password
 from datetime import  timedelta
@@ -111,6 +111,7 @@ def user_profile(request):
     if token:
         try:
             decoded_token = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+            print(decoded_token)
             user_email = decoded_token.get('email')
             username = decoded_token.get('username')
         except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
@@ -123,7 +124,13 @@ def user_profile(request):
         userDetails = UserRegistration.objects.get(email=user_email)
     except UserRegistration.DoesNotExist:
         userDetails = None
-    
+    if request.method == 'POST':
+        form = UserEditForm(request.POST, instance=userDetails)
+        if form.is_valid():
+            form.save()
+            return redirect('user_profile')
+    else:
+        form = UserEditForm(instance=userDetails)    
 
     blogs = ImageBlogModel.objects.filter(username=username) if userDetails else ImageBlogModel.objects.none()
     # print(COMMON_KEYS['USER_DETAILS_OBJ'])
@@ -131,7 +138,9 @@ def user_profile(request):
         'userDetails': userDetails,
         'blogs': blogs,
         'authenticated': True,
-        'user_details': request.user_details
+        'user_details': request.user_details,
+        'form': form
+
     }
     
     return render(request, 'account.html', context)
@@ -141,7 +150,7 @@ def user_profile(request):
 def upload_image(request):
     # Get place_data from session, initialize as an empty dict if not present
     place_data = request.session.get('place_data', {})
-
+    print(place_data)
     # Check if place_data is a list and convert to a dictionary if necessary
     if isinstance(place_data, list):
         place_data = place_data[0] if place_data else {}
@@ -152,6 +161,7 @@ def upload_image(request):
     if token:
         try:
             decoded_token = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+            
             username = decoded_token.get('username', 'anonymous')
         except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
             pass    
@@ -186,7 +196,7 @@ def upload_image(request):
     else:
         form = ImageBlogForm()
 
-    return render(request, 'upload_image.html', {'form': form, 'context': context,'authenticated': True,'user_details': request.user_details})
+    return render(request, 'upload_image.html', {'form': form, 'context': context,'authenticated': True,'user_details': request.user_details,'place_data':place_data})
 
 
 def place_list(request):
@@ -380,15 +390,9 @@ def explore_place(request):
         if form.is_valid():
             place_name = form.cleaned_data['place_name']
             print(f"User searched for: {place_name}")
-            # Make a request to your backend API
-            # api_url = f"http://localhost:8080/api/GetPlaceDetails/{place_name}"
-            # token=request.COOKIES.get('jwt_token')
-            # print(token)
             api_url = f"http://localhost:3030/api/GetPlaceDetails/{place_name}"
             response = requests.get(api_url)
             if response.status_code == 200:
-                # place_data = response.json()
-
                 # Store the data in the session
                 request.session['place_data'] = response.json()
                 response=redirect('explore_place_result')

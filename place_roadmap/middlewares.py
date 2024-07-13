@@ -8,16 +8,12 @@ class JWTAuthenticationMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
         self.exempt_urls = [
-            # '/home/login/',            # Add your login URL here
-            # '/home/logout/',          # Add your logout URL here
-            # '/home/register/',        # Add registration URL if applicable
-            # '/home/registration-success/',
-            # '/home/', 
+
             '/login/',            # Add your login URL here
             '/logout/',          # Add your logout URL here
             '/register/',        # Add registration URL if applicable
             '/registration-success/',
-            '/',
+            '/',            
         ]
 
     def __call__(self, request):

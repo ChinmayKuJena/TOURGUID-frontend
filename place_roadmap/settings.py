@@ -25,15 +25,16 @@ SECRET_KEY = 'django-insecure-1%jl8e5ov#)4h=jc=4hy3ei&u=%0@5727b+q$qsm*9@xugwx&v
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['6e10-157-41-255-70.ngrok-free.app','127.0.0.1']
+ALLOWED_HOSTS = ['5613-2409-40e2-c-dc86-658d-3277-de3a-c2fa.ngrok-free.app','127.0.0.1','localhost']
 
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://6e10-157-41-255-70.ngrok-free.app'
+    'https://5613-2409-40e2-c-dc86-658d-3277-de3a-c2fa.ngrok-free.app',
+    'https://localhost'
 ]
 
 # Optional: Allow Ngrok with both HTTP and HTTPS in general
-CSRF_TRUSTED_ORIGINS += ['http://*.ngrok.io', 'https://*.ngrok.io']
+# CSRF_TRUSTED_ORIGINS += ['http://*.ngrok.io', 'https://*.ngrok.io']
 
 
 
@@ -48,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'homepage',
+    # 'TRV_EXP',
     # 'user_info',
     'rest_framework',
     'rest_framework_simplejwt',
